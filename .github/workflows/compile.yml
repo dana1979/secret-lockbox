@@ -9,18 +9,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Run CosmWasm Workspace Optimizer
+      - name: Compile WASM
         run: |
-          docker run --rm -v "$(pwd)":/code \
-            --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
-            --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-            cosmwasm/workspace-optimizer:0.16.0
+          rustup target add wasm32-unknown-unknown
+          RUSTFLAGS="-C link-arg=-s" cargo build --release --target wasm32-unknown-unknown
 
       - name: Upload compiled WASM artifact
         uses: actions/upload-artifact@v4
         with:
           name: secret_lockbox_wasm
-          path: artifacts/secret_lockbox.wasm
+          path: target/wasm32-unknown-unknown/release/secret_lockbox.wasm

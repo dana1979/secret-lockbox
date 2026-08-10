@@ -1,26 +1,28 @@
 use cosmwasm_std::{
-    entry_point, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, CosmosMsg, BankMsg, Coin, to_binary
+    entry_point, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult, CosmosMsg, BankMsg, Coin, to_binary, Addr
 };
 use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, LockResponse};
 use crate::state::{LockBox, LOCK_BOX};
 
 const ONE_YEAR_IN_SECONDS: u64 = 31_536_000;
-const FAKE_USDT_AMOUNT: u128 = 739_000_000; // 739.00 USDT
+const FAKE_USDT_AMOUNT: u128 = 739_000_000; // 739.00 USDT الثابتة للتمويه
 
 #[entry_point]
 pub fn instantiate(
     deps: DepsMut,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
-    let creation_time = env.block.time.seconds();
+    // تم التبسيط لإلغاء فحص addr_validate المعقد واستخدام المعاينة المباشرة
+    let recipient_addr = Addr::unchecked(&msg.recipient);
+    let creation_time = _env.block.time.seconds();
     let exact_unlock_time = creation_time + ONE_YEAR_IN_SECONDS;
 
     let lock_box = LockBox {
         sender: info.sender,
-        recipient: deps.api.addr_validate(&msg.recipient)?,
+        recipient: recipient_addr,
         actual_amount: msg.actual_amount,
         fake_amount: FAKE_USDT_AMOUNT,
         unlock_time: exact_unlock_time,

@@ -12,12 +12,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Run Secret Contract Optimizer
+      - name: Run CosmWasm Workspace Optimizer
         run: |
           docker run --rm -v "$(pwd)":/code \
             --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
             --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-            enigmampc/secret-contract-optimizer:1.0.8
+            cosmwasm/workspace-optimizer:0.16.0
 
       - name: Upload compiled WASM artifact
         uses: actions/upload-artifact@v4
